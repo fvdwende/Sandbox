@@ -1,0 +1,90 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Sandbox SPA with PhoneJS</title>
+    <link rel="stylesheet" type="text/css" href="/Content/dx.common.css" />
+    <link rel="stylesheet" type="text/css" href="/Content/dx.ios.default.css" />
+    <link rel="stylesheet" type="text/css" href="/Content/dx.generic.light.css" />
+    <script src="/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="/Scripts/knockout-3.0.0.js"></script>
+    <script src="/Scripts/globalize/globalize.js"></script>
+    <script src="/Scripts/dx.phonejs.js"></script>
+    <script type="text/javascript">
+        window.AppNamespace = {};
+        $(function () {
+
+            // Add default layout
+            // To use the markup of the "myLayout" layout for the views, create an instance 
+            // of the DevExpress.framework.html.DefaultLayoutController controller passing 
+            // "myLayout" as a layout markup name. Add this controller to the application's 
+            // list of layout controllers and specify the navigation type at which this 
+            // controller with this layout markup must be used. Set the specified navigation 
+            // type for the application's navigationType configuration option.
+            DevExpress.framework.html.layoutControllers.push({
+                navigationType: "myNavigation",
+                controller: new DevExpress.framework.html.DefaultLayoutController({ layoutTemplateName: "myLayout" })
+            });
+
+            // Initialise application and set the navigation type
+            AppNamespace.app = new DevExpress.framework.html.HtmlApplication({
+                namespace: AppNamespace,
+                navigationType: "myNavigation"
+            });
+
+            // Register routing rule
+            AppNamespace.app.router.register(":view/:name", { view: "home", name: '' });
+            // Note that a starting view wasn't specified within the navigate method, but 
+            // the "home" view was set as the default view for the application's router.
+            AppNamespace.app.navigate();
+
+            // Define 'home' view model
+            AppNamespace.home = function () {
+                var viewModel = {
+                    message: ko.observable('Welcome!'),
+                    name: ko.observable(''),
+                    sayHello: function () {
+                        this.message("Hello " + this.name() + '!');
+                    },
+                    greet: function () {
+                        AppNamespace.app.navigate("greeting/" + this.name());
+                    }
+                };
+                return viewModel;
+            };
+            AppNamespace.greeting = function (params) {
+                var viewModel = {
+                    message: ko.observable('Hello ' + params.name + '!'),
+                };
+                return viewModel;
+            };
+        });
+    </script>
+</head>
+<body>
+    <!-- Default layout -->
+    <div data-options="dxLayout : { name: 'myLayout' } ">
+        <div data-options="dxToolbar: { items: [ { text: 'My First Application', align: 'center' } ] }"></div>
+        <div data-options="dxContentPlaceholder : { name: 'content', transition: 'slide' } "></div>
+    </div>
+
+    <!-- define 'home' view -->
+    <div data-options="dxView: {name: 'home'}">
+        <div data-options="dxContent : { targetPlaceholder: 'content' } ">
+            <h1 data-bind="text: message"></h1>
+            <!-- As you can see in the code above, we used the dxTextBox and dxButton widgets from the
+            PhoneJS widget library. These widgets are supplied with styles for each platform so
+            that your application looks native on any platform.  -->
+            Enter your name: <div data-bind="dxTextBox: { value: name }" style="width: 200px"></div>
+            <div data-bind="dxButton: { text: 'Say Hello', clickAction: sayHello }"></div>
+            <div data-bind="dxButton: { text: 'Greet', clickAction: greet }"></div>
+        </div>
+    </div>
+    <div data-options="dxView : { name: 'greeting'} ">
+        <div data-options="dxContent : { targetPlaceholder: 'content' } ">
+            <h1 data-bind="text: message"></h1>
+            <div data-bind="dxButton: { text: 'Go back', clickAction: '#_back' }"></div>
+        </div>
+    </div>
+</body>
+</html>
